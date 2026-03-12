@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android local Gradle cache/state (machine-specific)
+/android/.gradle/
+/android/.gradle-local/
+
+# iOS local pod setup in this workspace
+/ios/Podfile

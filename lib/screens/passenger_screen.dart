@@ -56,30 +56,54 @@ class PassengerScreen extends StatelessWidget {
       {required String title,
       required String subtitle,
       required IconData icon,
-      required String route}) {
-    final colorScheme = Theme.of(context).colorScheme;
+      required String route,
+      required Color accentColor}) {
     return Card(
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(22),
         onTap: () => Navigator.pushNamed(context, route),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  color: accentColor.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(icon, color: colorScheme.primary),
+                child: Icon(icon, color: accentColor),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: Theme.of(context).textTheme.titleSmall),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: accentColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            'Open',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: accentColor),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 4),
                     Text(subtitle,
                         style: Theme.of(context).textTheme.bodySmall),
@@ -90,6 +114,35 @@ class PassengerScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _metricChip(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required String value,
+      required Color accentColor}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF151F29),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFF2A3948)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: accentColor),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value, style: Theme.of(context).textTheme.labelMedium),
+              Text(label, style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -111,6 +164,7 @@ class PassengerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final totalRoutes = BusRoutesRepository.allRoutes.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -172,7 +226,7 @@ class PassengerScreen extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFF28120F),
+              const Color(0xFF10161D),
               colorScheme.surface,
               Theme.of(context).scaffoldBackgroundColor,
             ],
@@ -181,17 +235,76 @@ class PassengerScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(14),
           children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    colorScheme.primary.withValues(alpha: 0.18),
+                    colorScheme.secondary.withValues(alpha: 0.18),
+                    const Color(0xFF16202A),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.24),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Passenger Command Center',
+                      style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(height: 8),
+                  Text(
+                    'A cleaner bus-network dashboard for live tracking, route discovery, AI ETA, tickets, and safety tools.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      _metricChip(
+                        context,
+                        icon: Icons.alt_route,
+                        label: 'Active routes',
+                        value: '$totalRoutes',
+                        accentColor: colorScheme.primary,
+                      ),
+                      _metricChip(
+                        context,
+                        icon: Icons.access_time_filled_rounded,
+                        label: 'AI ETA',
+                        value: 'Live',
+                        accentColor: colorScheme.secondary,
+                      ),
+                      _metricChip(
+                        context,
+                        icon: Icons.notifications_active,
+                        label: 'Alerts',
+                        value: 'Real-time',
+                        accentColor: colorScheme.tertiary,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Professional Main Screen',
+                    Text('Travel Preferences',
                         style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 6),
                     Text(
-                      'Use side menu for sequential features or open quick cards below.',
+                      'Keep the dashboard tailored to your language before you start tracking buses.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 10),
@@ -234,6 +347,7 @@ class PassengerScreen extends StatelessWidget {
               subtitle: 'Track current bus movement and ETA on map.',
               icon: Icons.location_searching,
               route: '/trackbus',
+              accentColor: colorScheme.primary,
             ),
             _quickCard(
               context,
@@ -241,6 +355,7 @@ class PassengerScreen extends StatelessWidget {
               subtitle: 'Traffic + historical delay based prediction.',
               icon: Icons.analytics,
               route: '/ai-features',
+              accentColor: colorScheme.secondary,
             ),
             _quickCard(
               context,
@@ -248,6 +363,7 @@ class PassengerScreen extends StatelessWidget {
               subtitle: 'Generate secure QR ticket and check live seats.',
               icon: Icons.qr_code_2,
               route: '/tickets',
+              accentColor: colorScheme.tertiary,
             ),
             _quickCard(
               context,
@@ -255,6 +371,7 @@ class PassengerScreen extends StatelessWidget {
               subtitle: 'Arrival, delay and route-change alerts.',
               icon: Icons.notifications_active,
               route: '/alerts',
+              accentColor: const Color(0xFFFF8A65),
             ),
             _quickCard(
               context,
@@ -263,6 +380,7 @@ class PassengerScreen extends StatelessWidget {
                   'Use GPS to detect nearest stop and search routes/stops.',
               icon: Icons.near_me,
               route: '/routes',
+              accentColor: const Color(0xFF64B5F6),
             ),
             _quickCard(
               context,
@@ -271,6 +389,7 @@ class PassengerScreen extends StatelessWidget {
                   'Feedback analytics, voice assistant and offline route info.',
               icon: Icons.record_voice_over,
               route: '/ai-features',
+              accentColor: const Color(0xFFAED581),
             ),
             Card(
               child: Padding(

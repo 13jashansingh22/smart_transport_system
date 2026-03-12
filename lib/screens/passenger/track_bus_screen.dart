@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/bus_route.dart';
@@ -61,6 +62,7 @@ class _TrackBusScreenState extends State<TrackBusScreen> {
     if (selectedRoute == null) return;
 
     markers.clear();
+    polylines.clear();
     final stops = selectedRoute!.stops;
 
     // Start marker (green)
@@ -136,8 +138,8 @@ class _TrackBusScreenState extends State<TrackBusScreen> {
         Polyline(
           polylineId: const PolylineId('route_path'),
           points: coordinates,
-          color: Colors.blue.shade600,
-          width: 4,
+          color: const Color(0xFFFFC107),
+          width: 5,
           geodesic: true,
         ),
       );
@@ -210,7 +212,10 @@ class _TrackBusScreenState extends State<TrackBusScreen> {
   @override
   void dispose() {
     _busMovementTimer?.cancel();
-    mapController?.dispose();
+    if (!kIsWeb && _mapReady) {
+      mapController?.dispose();
+    }
+    mapController = null;
     super.dispose();
   }
 
@@ -238,8 +243,6 @@ class _TrackBusScreenState extends State<TrackBusScreen> {
               ),
           ],
         ),
-        elevation: 0,
-        backgroundColor: const Color(0xFF0F1624),
         actions: [
           if (!showFixedSidePanel)
             Builder(
@@ -292,7 +295,7 @@ class _TrackBusScreenState extends State<TrackBusScreen> {
                     width: 360,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF151D2C),
+                        color: const Color(0xFF131B24),
                         border: Border(
                           left: BorderSide(
                             color: colorScheme.primary.withValues(alpha: 0.25),
@@ -316,12 +319,12 @@ class _TrackBusScreenState extends State<TrackBusScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Passenger Map Features',
+            'Route Control Panel',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Text(
-            'Sequential controls on side panel',
+            'Bus-line colors, route controls, and live stop navigation.',
             style: Theme.of(context)
                 .textTheme
                 .labelSmall
@@ -517,7 +520,7 @@ class _TrackBusScreenState extends State<TrackBusScreen> {
           decoration: BoxDecoration(
             color: isSelected
                 ? colorScheme.primary.withValues(alpha: 0.2)
-                : Colors.transparent,
+                : const Color(0xFF1A232D),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: isSelected ? colorScheme.primary : Colors.transparent,

@@ -58,13 +58,6 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
       return;
     }
 
-    if (!SecurityService.isValidPassword(normalizedPassword)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(SecurityService.passwordPolicyMessage())),
-      );
-      return;
-    }
-
     setState(() => loading = true);
 
     try {
@@ -99,41 +92,59 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Driver Login")),
-      body: Padding(
-        padding: const EdgeInsets.all(25),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.drive_eta, size: 80),
-            const SizedBox(height: 20),
-            TextField(
-              controller: email,
-              keyboardType: TextInputType.emailAddress,
-              autofillHints: const [AutofillHints.username],
-              textInputAction: TextInputAction.next,
-              autocorrect: false,
-              enableSuggestions: false,
-              decoration: const InputDecoration(labelText: "Driver Email"),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            padding: const EdgeInsets.all(25),
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(minHeight: constraints.maxHeight - 50),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.drive_eta, size: 80),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: email,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.username],
+                        textInputAction: TextInputAction.next,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        decoration:
+                            const InputDecoration(labelText: "Driver Email"),
+                      ),
+                      const SizedBox(height: 15),
+                      TextField(
+                        controller: password,
+                        obscureText: true,
+                        keyboardType: TextInputType.visiblePassword,
+                        autofillHints: const [AutofillHints.password],
+                        textInputAction: TextInputAction.done,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        decoration:
+                            const InputDecoration(labelText: "Password"),
+                      ),
+                      const SizedBox(height: 25),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: loading ? null : loginDriver,
+                          child: loading
+                              ? const CircularProgressIndicator()
+                              : const Text("Login"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: password,
-              obscureText: true,
-              keyboardType: TextInputType.visiblePassword,
-              autofillHints: const [AutofillHints.password],
-              textInputAction: TextInputAction.done,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(labelText: "Password"),
-            ),
-            const SizedBox(height: 25),
-            ElevatedButton(
-              onPressed: loading ? null : loginDriver,
-              child: loading
-                  ? const CircularProgressIndicator()
-                  : const Text("Login"),
-            )
-          ],
+          ),
         ),
       ),
     );

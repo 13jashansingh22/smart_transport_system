@@ -135,80 +135,98 @@ class _PassengerLoginScreenState extends State<PassengerLoginScreen> {
     return Scaffold(
       appBar: AppBar(
           title: Text(isSignupMode ? 'Passenger Sign Up' : 'Passenger Login')),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520),
-          child: Card(
-            margin: const EdgeInsets.all(20),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.person, size: 72, color: colorScheme.primary),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: email,
-                    keyboardType: TextInputType.emailAddress,
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    autofillHints: const [AutofillHints.username],
-                    decoration: const InputDecoration(labelText: 'Email'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: password,
-                    obscureText: true,
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    autofillHints: const [AutofillHints.password],
-                    decoration: const InputDecoration(labelText: 'Password'),
-                  ),
-                  if (isSignupMode) ...[
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: confirmPassword,
-                      obscureText: true,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      decoration:
-                          const InputDecoration(labelText: 'Confirm Password'),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(minHeight: constraints.maxHeight - 40),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.person,
+                              size: 72, color: colorScheme.primary),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: email,
+                            keyboardType: TextInputType.emailAddress,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            autofillHints: const [AutofillHints.username],
+                            decoration:
+                                const InputDecoration(labelText: 'Email'),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: password,
+                            obscureText: true,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            autofillHints: const [AutofillHints.password],
+                            decoration:
+                                const InputDecoration(labelText: 'Password'),
+                          ),
+                          if (isSignupMode) ...[
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: confirmPassword,
+                              obscureText: true,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              decoration: const InputDecoration(
+                                  labelText: 'Confirm Password'),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              SecurityService.passwordPolicyMessage(),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: loading ? null : _submit,
+                              child: loading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    )
+                                  : Text(isSignupMode
+                                      ? 'Create Account'
+                                      : 'Login'),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: loading
+                                ? null
+                                : () => setState(
+                                    () => isSignupMode = !isSignupMode),
+                            child: Text(
+                              isSignupMode
+                                  ? 'Already have an account? Login'
+                                  : 'No account? Create one',
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                  const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      SecurityService.passwordPolicyMessage(),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: loading ? null : _submit,
-                      child: loading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(isSignupMode ? 'Create Account' : 'Login'),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: loading
-                        ? null
-                        : () => setState(() => isSignupMode = !isSignupMode),
-                    child: Text(
-                      isSignupMode
-                          ? 'Already have an account? Login'
-                          : 'No account? Create one',
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

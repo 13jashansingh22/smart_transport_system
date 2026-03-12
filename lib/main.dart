@@ -54,55 +54,125 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  ThemeData _buildDarkTheme() {
+  ThemeData _buildTheme() {
     const colorScheme = ColorScheme.dark(
-      primary: Color(0xFFFF3D00),
-      secondary: Color(0xFFFF9100),
-      surface: Color(0xFF1A1110),
-      onSurface: Color(0xFFFFE9E2),
-      error: Color(0xFFFF1744),
+      primary: Color(0xFFFFC107),
+      onPrimary: Color(0xFF271900),
+      secondary: Color(0xFFE53935),
+      onSecondary: Colors.white,
+      tertiary: Color(0xFF26A69A),
+      surface: Color(0xFF18212B),
+      onSurface: Color(0xFFF6F1E8),
+      error: Color(0xFFFF5252),
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: const Color(0xFF130B0A),
+      scaffoldBackgroundColor: const Color(0xFF0F141B),
+      canvasColor: const Color(0xFF131B24),
+      dividerColor: const Color(0xFF2E3A46),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Color(0xFF1F1210),
-        foregroundColor: Color(0xFFFFE9E2),
+        backgroundColor: Color(0xFF131B24),
+        foregroundColor: Color(0xFFF6F1E8),
+      ),
+      textTheme: const TextTheme(
+        headlineSmall: TextStyle(
+          fontSize: 28,
+          letterSpacing: -0.5,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 22,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 18,
+        ),
+        titleSmall: TextStyle(
+          fontSize: 15,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          height: 1.4,
+        ),
+        bodySmall: TextStyle(
+          fontSize: 12,
+          height: 1.35,
+          color: Color(0xFFB7C2CE),
+        ),
+        labelMedium: TextStyle(
+          fontSize: 13,
+          letterSpacing: 0.2,
+        ),
+      ).apply(
+        bodyColor: colorScheme.onSurface,
+        displayColor: colorScheme.onSurface,
       ),
       cardTheme: CardThemeData(
-        color: const Color(0xFF251715),
-        elevation: 2,
+        color: const Color(0xFF17202A),
+        elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(22),
+          side: const BorderSide(color: Color(0xFF293542)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF241816),
+        fillColor: const Color(0xFF19222C),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF5C3328)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF364454)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFFFC107), width: 1.4),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(52),
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           textStyle: const TextStyle(),
         ),
       ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(50),
+          foregroundColor: colorScheme.onSurface,
+          side: const BorderSide(color: Color(0xFF465566)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFF1D2833),
+        contentTextStyle: TextStyle(color: colorScheme.onSurface),
+        behavior: SnackBarBehavior.floating,
+      ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFFFF1744),
+        backgroundColor: Color(0xFFE53935),
         foregroundColor: Colors.white,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: const Color(0xFF1E2834),
+        selectedColor: colorScheme.primary.withValues(alpha: 0.18),
+        side: const BorderSide(color: Color(0xFF334150)),
+        labelStyle: TextStyle(color: colorScheme.onSurface),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(999),
+        ),
       ),
     );
   }
@@ -113,8 +183,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Smart Transport System",
       themeMode: ThemeMode.dark,
-      darkTheme: _buildDarkTheme(),
-      theme: _buildDarkTheme(),
+      darkTheme: _buildTheme(),
+      theme: _buildTheme(),
       home: const SplashScreen(),
       routes: {
         /// Roles

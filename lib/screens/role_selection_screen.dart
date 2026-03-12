@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'auth/driver_login.dart';
 import 'auth/conductor_login.dart';
+import 'auth/driver_login.dart';
 import 'auth/passenger_login.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
@@ -10,45 +10,53 @@ class RoleSelectionScreen extends StatelessWidget {
   Widget roleButton(
     BuildContext context,
     String title,
+    String subtitle,
     IconData icon,
     Widget screen,
+    Color accentColor,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.all(18),
-            backgroundColor: colorScheme.surface,
-            foregroundColor: colorScheme.onSurface,
-            side:
-                BorderSide(color: colorScheme.primary.withValues(alpha: 0.35)),
-          ),
-          onPressed: () {
+      child: Card(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => screen,
-              ),
+              MaterialPageRoute(builder: (context) => screen),
             );
           },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 28,
-                color: colorScheme.primary,
-              ),
-              const SizedBox(width: 10),
-              Text(
-                title,
-                style: const TextStyle(),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Icon(icon, size: 28, color: accentColor),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title,
+                          style: Theme.of(context).textTheme.titleSmall),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios_rounded, size: 18),
+              ],
+            ),
           ),
         ),
       ),
@@ -60,65 +68,123 @@ class RoleSelectionScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Select Role"),
-        centerTitle: true,
-      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
+              const Color(0xFF10161D),
               colorScheme.surface,
               Theme.of(context).scaffoldBackgroundColor,
             ],
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(20),
             children: [
-              Icon(
-                Icons.directions_bus,
-                size: 100,
-                color: colorScheme.primary,
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.primary.withValues(alpha: 0.18),
+                      colorScheme.secondary.withValues(alpha: 0.18),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.28),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Icon(
+                            Icons.directions_bus_filled_rounded,
+                            color: Color(0xFF271900),
+                            size: 34,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            'Smart Transport Hub',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Bus-line inspired access screen with route-focused dashboards for passengers, drivers, conductors, and control staff.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 14),
+                    const Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        Chip(label: Text('Live routes')),
+                        Chip(label: Text('Smart ticketing')),
+                        Chip(label: Text('Traffic insights')),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Text(
-                "Smart Transport Professional Access",
+                'Choose your access lane',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
-                "Select your dashboard: Passenger, Driver, Conductor, or Admin.",
+                'Pick the dashboard that matches your role in the transport system.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 16),
               roleButton(
                 context,
-                "Passenger",
+                'Passenger',
+                'Track buses, manage tickets, and receive live alerts.',
                 Icons.person,
                 const PassengerLoginScreen(),
+                colorScheme.primary,
               ),
               roleButton(
                 context,
-                "Driver",
+                'Driver',
+                'Navigation, route control, and live operating tools.',
                 Icons.drive_eta,
                 const DriverLoginScreen(),
+                const Color(0xFFE53935),
               ),
               roleButton(
                 context,
-                "Conductor",
+                'Conductor',
+                'Boarding, ticket validation, and rider coordination.',
                 Icons.confirmation_number,
                 const ConductorLoginScreen(),
+                const Color(0xFF26A69A),
               ),
               roleButton(
                 context,
-                "Admin",
+                'Admin',
+                'Control center analytics and transport operations.',
                 Icons.admin_panel_settings,
                 const _AdminRedirectScreen(),
+                const Color(0xFF90A4AE),
               ),
             ],
           ),
