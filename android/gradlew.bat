@@ -16,6 +16,9 @@ if "%DIRNAME%" == "" set DIRNAME=.
 set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%
 
+@rem Use project-local Gradle user home to avoid global cache lock/permission issues.
+if not defined GRADLE_USER_HOME set GRADLE_USER_HOME=%APP_HOME%\.gradle-user-home
+
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
 

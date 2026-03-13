@@ -106,14 +106,16 @@ class RoleSelectionScreen extends StatelessWidget {
                         Container(
                           width: 64,
                           height: 64,
+                          clipBehavior: Clip.antiAlias,
                           decoration: BoxDecoration(
-                            color: colorScheme.primary,
                             borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: colorScheme.primary.withValues(alpha: 0.5),
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.directions_bus_filled_rounded,
-                            color: Color(0xFF271900),
-                            size: 34,
+                          child: Image.asset(
+                            'assets/images/app_logo_bus.png',
+                            fit: BoxFit.cover,
                           ),
                         ),
                         const SizedBox(width: 14),

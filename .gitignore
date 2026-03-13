@@ -47,6 +47,9 @@ app.*.map.json
 # Android local Gradle cache/state (machine-specific)
 /android/.gradle/
 /android/.gradle-local/
+/android/.gradle-user-home/
 
-# iOS local pod setup in this workspace
-/ios/Podfile
+# iOS local build artifacts and dependencies
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/ephemeral/

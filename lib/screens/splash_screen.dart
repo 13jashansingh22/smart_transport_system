@@ -49,10 +49,25 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.directions_bus,
-                size: 120,
-                color: colorScheme.primary,
+              Container(
+                width: 132,
+                height: 132,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111A24),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.55),
+                    width: 2,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'assets/images/app_logo_bus.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               Text(
