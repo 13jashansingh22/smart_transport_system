@@ -39,6 +39,7 @@ class _PassengerMapScreenState extends State<PassengerMapScreen> {
       LiveBusSimulatorService.instance;
   final fmap.MapController _fallbackController = fmap.MapController();
   final TextEditingController _searchController = TextEditingController();
+  final PageController _panelController = PageController();
   final Distance _distance = const Distance();
 
   gmaps.GoogleMapController? _googleController;
@@ -57,6 +58,14 @@ class _PassengerMapScreenState extends State<PassengerMapScreen> {
   List<_NearbyStopEntry> _nearbyStops = const <_NearbyStopEntry>[];
 
   SimulatedBusSnapshot? _selectedBus;
+  int _currentPanel = 0;
+
+  static const List<String> _panelTitles = [
+    'Nearest buses',
+    'Suggested routes',
+    'Nearby stops',
+    'Route sequence',
+  ];
 
   bool get _supportsGoogleMaps {
     if (kIsWeb) return false;
@@ -425,10 +434,154 @@ class _PassengerMapScreenState extends State<PassengerMapScreen> {
     );
   }
 
+  Widget _panelShell(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required Widget child,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Colors.white70),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: SingleChildScrollView(child: child),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _liveBusesPanel(BuildContext context) {
+    if (_nearbyBuses.isEmpty) {
+      return const Text('No live buses found nearby yet.',
+          style: TextStyle(color: Colors.white70));
+    }
+
+    return Column(
+      children: _nearbyBuses.take(6).map((entry) {
+        return ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(entry.snapshot.routeName,
+              style: const TextStyle(color: Colors.white)),
+          subtitle: Text(
+            '${entry.distanceKm.toStringAsFixed(1)} km • ETA ${entry.snapshot.etaToNextStopMinutes} min',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          trailing: IconButton(
+            icon: const Icon(Icons.open_in_new_rounded, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      TrackBusScreen(routeId: entry.snapshot.routeId),
+                ),
+              );
+            },
+          ),
+          onTap: () => setState(() => _selectedBus = entry.snapshot),
+        );
+      }).toList(growable: false),
+    );
+  }
+
+  Widget _routesPanel() {
+    if (_suggestedRoutes.isEmpty) {
+      return const Text('No suggested routes yet.',
+          style: TextStyle(color: Colors.white70));
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: _suggestedRoutes
+          .map(
+            (route) => ActionChip(
+              label: Text(
+                '${route.routeNumber} • ${route.source} → ${route.destination}',
+              ),
+              onPressed: () {
+                final matches = _nearbyBuses
+                    .where((e) => e.snapshot.routeId == route.id)
+                    .toList(growable: false);
+                if (matches.isNotEmpty) {
+                  setState(() => _selectedBus = matches.first.snapshot);
+                }
+              },
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  Widget _stopsPanel() {
+    if (_nearbyStops.isEmpty) {
+      return const Text('Nearby stop data unavailable.',
+          style: TextStyle(color: Colors.white70));
+    }
+
+    return Column(
+      children: _nearbyStops
+          .map(
+            (stop) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  const Icon(Icons.place_outlined,
+                      size: 15, color: Colors.white),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      '${stop.stopName} (${stop.routeNumber})',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Text(
+                    '${stop.distanceKm.toStringAsFixed(1)} km',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  Future<void> _goToPanel(int index) async {
+    if (!_panelController.hasClients) return;
+    await _panelController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   @override
   void dispose() {
     _liveBusSimulator.liveBuses.removeListener(_onLiveBusesChanged);
     _searchController.dispose();
+    _panelController.dispose();
     super.dispose();
   }
 
@@ -554,128 +707,103 @@ class _PassengerMapScreenState extends State<PassengerMapScreen> {
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(26)),
                     ),
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                    child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                    child: SizedBox(
+                      height: 278,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Nearest moving buses',
+                            'Panels in sequence (1 → 4)',
                             style: Theme.of(context)
                                 .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700),
+                                .labelLarge
+                                ?.copyWith(color: Colors.white70),
                           ),
                           const SizedBox(height: 8),
-                          if (_nearbyBuses.isEmpty)
-                            const Text('No live buses found nearby yet.')
-                          else
-                            ..._nearbyBuses.take(4).map(
-                                  (entry) => ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: Text(entry.snapshot.routeName),
-                                    subtitle: Text(
-                                      '${entry.distanceKm.toStringAsFixed(1)} km • ETA ${entry.snapshot.etaToNextStopMinutes} min',
-                                    ),
-                                    trailing: IconButton(
-                                      icon:
-                                          const Icon(Icons.open_in_new_rounded),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => TrackBusScreen(
-                                                routeId:
-                                                    entry.snapshot.routeId),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    onTap: () => setState(
-                                        () => _selectedBus = entry.snapshot),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children:
+                                  List.generate(_panelTitles.length, (index) {
+                                final selected = _currentPanel == index;
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: ChoiceChip(
+                                    selected: selected,
+                                    label: Text(
+                                        '${index + 1}. ${_panelTitles[index]}'),
+                                    onSelected: (_) => _goToPanel(index),
                                   ),
+                                );
+                              }),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: PageView(
+                              controller: _panelController,
+                              onPageChanged: (index) {
+                                if (!mounted) return;
+                                setState(() => _currentPanel = index);
+                              },
+                              children: [
+                                _panelShell(
+                                  context,
+                                  title: '1. Nearest moving buses',
+                                  subtitle:
+                                      'Tap any bus to select it on map and open detailed tracking.',
+                                  child: _liveBusesPanel(context),
                                 ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Suggested routes',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 6),
-                          if (_suggestedRoutes.isEmpty)
-                            const Text('No suggested routes yet.')
-                          else
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _suggestedRoutes
-                                  .map(
-                                    (route) => ActionChip(
-                                      label: Text(
-                                          '${route.routeNumber} • ${route.source} → ${route.destination}'),
-                                      onPressed: () {
-                                        final matches = _nearbyBuses
-                                            .where((e) =>
-                                                e.snapshot.routeId == route.id)
-                                            .toList(growable: false);
-                                        if (matches.isNotEmpty) {
-                                          setState(() => _selectedBus =
-                                              matches.first.snapshot);
-                                        }
-                                      },
-                                    ),
-                                  )
-                                  .toList(growable: false),
+                                _panelShell(
+                                  context,
+                                  title: '2. Suggested routes',
+                                  subtitle:
+                                      'Choose a route chip to focus buses from that route.',
+                                  child: _routesPanel(),
+                                ),
+                                _panelShell(
+                                  context,
+                                  title: '3. Nearby stops',
+                                  subtitle:
+                                      'Understand nearest boarding points with route and distance.',
+                                  child: _stopsPanel(),
+                                ),
+                                _panelShell(
+                                  context,
+                                  title: '4. Selected route sequence',
+                                  subtitle:
+                                      'Current and next stop highlighting for easy trip understanding.',
+                                  child: _routeSequence(),
+                                ),
+                              ],
                             ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Nearby stops',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 6),
-                          ..._nearbyStops.map(
-                            (stop) => Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.place_outlined, size: 15),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      '${stop.stopName} (${stop.routeNumber})',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Text(
-                                      '${stop.distanceKm.toStringAsFixed(1)} km'),
-                                ],
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: _currentPanel == 0
+                                      ? null
+                                      : () => _goToPanel(_currentPanel - 1),
+                                  icon: const Icon(Icons.arrow_back_rounded),
+                                  label: const Text('Previous'),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed:
+                                      _currentPanel == _panelTitles.length - 1
+                                          ? null
+                                          : () => _goToPanel(_currentPanel + 1),
+                                  icon: const Icon(Icons.arrow_forward_rounded),
+                                  label: const Text('Next'),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Selected route sequence',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 6),
-                          _routeSequence(),
                         ],
                       ),
                     ),

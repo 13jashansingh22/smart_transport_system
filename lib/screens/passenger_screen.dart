@@ -187,6 +187,66 @@ class PassengerScreen extends StatelessWidget {
     );
   }
 
+  Widget _infoSlideCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color accentColor,
+    required List<Widget> chips,
+  }) {
+    return Container(
+      width: 320,
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            accentColor.withValues(alpha: 0.18),
+            Theme.of(context).colorScheme.surface,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.24),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: accentColor),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 12),
+          Wrap(spacing: 10, runSpacing: 10, children: chips),
+        ],
+      ),
+    );
+  }
+
   Future<void> _quickCall(BuildContext context, String phone) async {
     final uri = Uri(scheme: 'tel', path: phone);
     final ok = await canLaunchUrl(uri);
@@ -276,38 +336,19 @@ class PassengerScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(14),
           children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.primary.withValues(alpha: 0.18),
-                    colorScheme.secondary.withValues(alpha: 0.18),
-                    colorScheme.surface,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: colorScheme.primary.withValues(alpha: 0.24),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            SizedBox(
+              height: 206,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
                 children: [
-                  Text('Passenger Command Center',
-                      style: Theme.of(context).textTheme.headlineSmall),
-                  const SizedBox(height: 8),
-                  Text(
-                    'A cleaner bus-network dashboard for live tracking, route discovery, AI ETA, tickets, and safety tools.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
+                  _infoSlideCard(
+                    context,
+                    icon: Icons.dashboard_customize_rounded,
+                    title: 'Passenger Command Center',
+                    subtitle:
+                        'Swipe cards for quick transport intelligence overview.',
+                    accentColor: colorScheme.primary,
+                    chips: [
                       _metricChip(
                         context,
                         icon: Icons.alt_route,
@@ -322,12 +363,53 @@ class PassengerScreen extends StatelessWidget {
                         value: 'Live',
                         accentColor: colorScheme.secondary,
                       ),
+                    ],
+                  ),
+                  _infoSlideCard(
+                    context,
+                    icon: Icons.location_searching_rounded,
+                    title: 'Live Map Coverage',
+                    subtitle:
+                        'Track moving buses by city and open route sequence instantly.',
+                    accentColor: colorScheme.secondary,
+                    chips: [
+                      _metricChip(
+                        context,
+                        icon: Icons.map_rounded,
+                        label: 'Map mode',
+                        value: 'Fast',
+                        accentColor: colorScheme.secondary,
+                      ),
+                      _metricChip(
+                        context,
+                        icon: Icons.directions_bus_filled_rounded,
+                        label: 'Demo buses',
+                        value: 'Moving',
+                        accentColor: colorScheme.tertiary,
+                      ),
+                    ],
+                  ),
+                  _infoSlideCard(
+                    context,
+                    icon: Icons.health_and_safety_rounded,
+                    title: 'Safety & Alerts',
+                    subtitle:
+                        'Emergency support and real-time alerting remain one tap away.',
+                    accentColor: colorScheme.tertiary,
+                    chips: [
                       _metricChip(
                         context,
                         icon: Icons.notifications_active,
                         label: 'Alerts',
                         value: 'Real-time',
                         accentColor: colorScheme.tertiary,
+                      ),
+                      _metricChip(
+                        context,
+                        icon: Icons.warning_amber_rounded,
+                        label: 'SOS',
+                        value: 'Ready',
+                        accentColor: colorScheme.primary,
                       ),
                     ],
                   ),
