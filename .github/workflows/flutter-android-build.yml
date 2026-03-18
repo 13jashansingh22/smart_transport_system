@@ -3,7 +3,7 @@ name: Flutter Android Build
 on:
   push:
     branches:
-      - main   # change if needed (e.g., master, dev)
+      - main
 
 jobs:
   build:
@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
+      # 1. Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Java (required for Android build)
+      # 2. Setup Java
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -26,23 +26,29 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'  # update as needed
+          flutter-version: '3.22.0'
 
-      # 4. Install dependencies
+      # 4. Install Android SDK components
+      - name: Install Android SDK
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      # 5. Fix Gradle permission
+      - name: Grant execute permission
+        run: chmod +x android/gradlew
+
+      # 6. Get dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # 5. Run analyzer (optional but good practice)
-      - name: Analyze project
-        run: flutter analyze
-
-      # 6. Build APK
+      # 7. Build APK
       - name: Build APK
         run: flutter build apk --release
 
-      # 7. Upload APK as artifact
+      # 8. Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: flutter-apk
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
