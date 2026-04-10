@@ -3,8 +3,6 @@ require('dotenv').config();
 const { initializeFirebaseAdmin } = require('./config/firebaseAdmin');
 const { createApp } = require('./app');
 
-const PORT = process.env.PORT || 4000;
-
 try {
   initializeFirebaseAdmin();
 } catch (error) {
@@ -13,7 +11,13 @@ try {
 
 const app = createApp();
 
-app.listen(PORT, () => {
-  console.log(`Smart Transport backend running on http://localhost:${PORT}`);
-});
+// Listen only when run directly (not when imported as a Vercel serverless function)
+if (require.main === module) {
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, () => {
+    console.log(`Smart Transport backend running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
 
